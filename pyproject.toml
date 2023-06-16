@@ -27,9 +27,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/pymolecule-parser#readme"
-Issues = "https://github.com/unknown/pymolecule-parser/issues"
-Source = "https://github.com/unknown/pymolecule-parser"
+Documentation = "https://github.com/kohei-noda-qcrg/pymolecule-parser#readme"
+Issues = "https://github.com/kohei-noda-qcrg/pymolecule-parser/issues"
+Source = "https://github.com/kohei-noda-qcrg/pymolecule-parser"
 
 [tool.hatch.version]
 path = "src/pymolecule_parser/__about__.py"
