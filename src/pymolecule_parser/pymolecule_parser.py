@@ -153,7 +153,6 @@ def parse(molecule_str: "str") -> "dict[str, int]":
     molecule_str = molecule_str.replace(" ", "")  # remove all spaces
     # special characters [-=≡] are removed
     molecule_str = re.sub(r"[-=≡]", "", molecule_str)
-    print(molecule_str)
     global parser_idx
     parser_idx = 0
     bra_list = ["(", "[", "{"]
