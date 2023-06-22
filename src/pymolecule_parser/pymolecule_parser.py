@@ -65,7 +65,12 @@ def parse(molecule_str: str, strict_mode: bool = False) -> "dict[str, int]":
                 parser_idx += 1
                 return string[parser_idx - 1]
             else:
-                return ""
+                re_invalid = re.compile(r"[A-Za-z]+")
+                invalid_match = re.match(re_invalid, string[parser_idx:])
+                if invalid_match is not None:
+                    raise ValueError(f"Error: Parse error. The atom is not in H-Og. invalid atom: {invalid_match.group()}. your argument: {string}. Please check your argument.")
+                else:
+                    return ""
         else:  # strict_mode=False
             # Non-strict mode: non-atomic symbols are allowed (e.g.) Xyz, Abc, etc.
             # atom ::= '[A-Z][a-z]*'
