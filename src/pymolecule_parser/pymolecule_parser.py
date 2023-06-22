@@ -4,14 +4,21 @@ import re
 from collections import defaultdict
 
 
-def parse(molecule_str: "str") -> "dict[str, int]":
+def parse(molecule_str: str, strict_mode: bool = False) -> "dict[str, int]":
     """
     Parse the molecule input and return the Atoms object.
+
+    args:
+        molecule_str: str - The molecule string.
+        strict_mode: bool - If True, the molecule string is parsed strictly.
+    return:
+        dict[str, int] - The dictionary of the molecule. The key is the element symbol and the value is the number of atoms.
 
     digit_exclude_zero ::= '1', '2', '3', '4', '5', '6', '7', '8', '9'
     digit ::= '0' | digit_exclude_zero
     natural_number ::= digit_exclude_zero, {digit}
-    atom ::= 'H' | 'He' | 'Li' | 'Be' | 'B' | 'C' | 'N' | 'O' | 'F' | 'Ne' | ... | 'Rg'
+    atom ::= 'H' | 'He' | 'Li' | 'Be' | 'B' | 'C' | 'N' | 'O' | 'F' | 'Ne' | ... | 'Og' (strict_mode=True)
+    atom ::= '[A-Z][a-z]*' (strict_mode=False)
     atom_number ::= { atom, natural_number }
     bra ::= '(' | '[' | '{'
     ket ::= ')' | ']' | '}'
@@ -50,13 +57,24 @@ def parse(molecule_str: "str") -> "dict[str, int]":
 
     def atom(string: str) -> str:
         global parser_idx
-        if parser_idx + 2 <= len(string) and string[parser_idx : parser_idx + 2] in elements:
-            parser_idx += 2
-            return string[parser_idx - 2 : parser_idx]
-        elif parser_idx + 1 <= len(string) and string[parser_idx] in elements:
-            parser_idx += 1
-            return string[parser_idx - 1]
-        return ""
+        if strict_mode:
+            if parser_idx + 2 <= len(string) and string[parser_idx : parser_idx + 2] in elements:
+                parser_idx += 2
+                return string[parser_idx - 2 : parser_idx]
+            elif parser_idx + 1 <= len(string) and string[parser_idx] in elements:
+                parser_idx += 1
+                return string[parser_idx - 1]
+            else:
+                return ""
+        else:  # strict_mode=False
+            # Non-strict mode: non-atomic symbols are allowed (e.g.) Xyz, Abc, etc.
+            # atom ::= '[A-Z][a-z]*'
+            re_atom = re.compile(r"[A-Z][a-z]*")
+            atom_match = re.match(re_atom, string[parser_idx:])
+            if atom_match is None:
+                raise ValueError(f"Error: Parse error. The atom is not in regex ([A-Z][a-z]*). your input: {string}. Please check your input.")
+            parser_idx += atom_match.end()
+            return atom_match.group()
 
     def atom_number(string: str) -> "defaultdict[str, int]":
         # atom_number: { atom, natural_number }
@@ -157,5 +175,5 @@ def parse(molecule_str: "str") -> "dict[str, int]":
     parser_idx = 0
     bra_list = ["(", "[", "{"]
     ket_list = [")", "]", "}"]
-    elements: "list[str]" = ["H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg"]
+    elements: "list[str]" = ["H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"]
     return molecule(molecule_str)
