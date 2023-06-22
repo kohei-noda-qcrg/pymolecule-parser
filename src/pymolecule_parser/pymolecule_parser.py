@@ -71,8 +71,14 @@ def parse(molecule_str: str, strict_mode: bool = False) -> "dict[str, int]":
             # atom ::= '[A-Z][a-z]*'
             re_atom = re.compile(r"[A-Z][a-z]*")
             atom_match = re.match(re_atom, string[parser_idx:])
+            # invalid atom ::= '[a-z]+' (e.g.) c, abc, xyz, etc.
+            re_invalid = re.compile(r"[a-z]+")
+            invalid_match = re.match(re_invalid, string[parser_idx:])
             if atom_match is None:
-                raise ValueError(f"Error: Parse error. The atom is not in regex ([A-Z][a-z]*). your input: {string}. Please check your input.")
+                if invalid_match is not None:  # Start with lowercase letter, invalid atom
+                    raise ValueError(f"Error: Parse error. The atom is not in regex ([A-Z][a-z]*). invalid atom: {invalid_match.group()}. your argument: {string}. Please check your argument.")
+                else:  # No atom
+                    return ""
             parser_idx += atom_match.end()
             return atom_match.group()
 
