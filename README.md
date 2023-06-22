@@ -1,5 +1,7 @@
 # pymolecule-parser: A parser for a molecule formula that supports nested brackets
 
+[![pymolecule-parser-test](https://github.com/kohei-noda-qcrg/pymolecule-parser/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kohei-noda-qcrg/pymolecule-parser/actions/workflows/test.yml)
+
 ## Installation
 
 ```bash
